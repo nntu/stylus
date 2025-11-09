@@ -530,7 +530,7 @@ impl SnmpNetworkMonitorConfig {
         MonitorDirTestConfig {
             interval: self.interval,
             timeout: self.timeout,
-            command: PathBuf::from("/usr/bin/env"),
+            command: PathBuf::from(binary),
             args: parts,
             processor: Some(Arc::new(SnmpMonitorMessageProcessor {
                 id: self.id.clone(),

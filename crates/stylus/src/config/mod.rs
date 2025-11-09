@@ -283,11 +283,38 @@ pub fn parse_monitor_config_string(
         test.command = Path::canonicalize(&executable)?;
     } else {
         let command_line = test.command.to_string_lossy().to_string();
-        if !command_line.contains(' ') {
+
+        // Check if command exists in system PATH
+        let command_exists = if cfg!(target_os = "windows") {
+            // On Windows, try using 'where' command
+            std::process::Command::new("where")
+                .arg(&command_line)
+                .output()
+                .map(|output| output.status.success())
+                .unwrap_or(false)
+        } else {
+            // On Unix, try using 'which' command
+            std::process::Command::new("which")
+                .arg(&command_line)
+                .output()
+                .map(|output| output.status.success())
+                .unwrap_or(false)
+        };
+
+        if command_exists {
+            // Command exists in PATH, keep it as is
+        } else if command_line.contains(' ') {
+            // Complex command, wrap in shell
+            if cfg!(target_os = "windows") {
+                test.args = vec!["/C".to_string(), command_line];
+                test.command = PathBuf::from("cmd");
+            } else {
+                test.args = vec!["-c".to_string(), command_line];
+                test.command = PathBuf::from("/bin/sh");
+            }
+        } else {
             return Err(format!("Command {} is not available", command_line).into());
         }
-        test.args = vec!["-c".to_string(), command_line];
-        test.command = PathBuf::from("/bin/sh");
     }
 
     let mut children = BTreeMap::new();

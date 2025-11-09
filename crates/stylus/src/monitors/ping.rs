@@ -70,17 +70,36 @@ fn default_yellow() -> String {
 
 impl PingMonitorConfig {
     pub fn test(&self) -> MonitorDirTestConfig {
-        let args = vec![
-            "ping".to_string(),
-            "-c".to_string(),
-            self.count.to_string(),
-            self.host.clone(),
-        ];
+        let (command, args) = if cfg!(target_os = "windows") {
+            // Windows ping command syntax
+            (
+                PathBuf::from("ping"),
+                vec![
+                    self.host.clone(),
+                    "-n".to_string(),
+                    self.count.to_string(),
+                    "-w".to_string(),
+                    self.timeout.as_millis().to_string(),
+                ],
+            )
+        } else {
+            // Unix ping command syntax
+            (
+                PathBuf::from("ping"),
+                vec![
+                    "-c".to_string(),
+                    self.count.to_string(),
+                    "-W".to_string(),
+                    self.timeout.as_secs().to_string(),
+                    self.host.clone(),
+                ],
+            )
+        };
 
         MonitorDirTestConfig {
             interval: self.interval,
             timeout: self.timeout,
-            command: PathBuf::from("/usr/bin/env"),
+            command,
             args,
             processor: Some(Arc::new(PingMonitorMessageProcessor {
                 count: self.count,
