@@ -42,3 +42,16 @@ peg = "0.8"
 
 rasn-mib = "0.27.2"
 rasn-smi = "0.27.2"
+[target.'cfg(windows)'.dependencies]
+windows-service = "0.6"
+windows = { version = "0.52", features = [
+    "Win32_System_Threading",
+    "Win32_System_Diagnostics_Debug",
+    "Win32_System_EventLog",
+    "Win32_System_SystemServices",
+    "Win32_Security",
+] }
+widestring = "1.0"
+
+[target.'cfg(not(windows))'.dependencies]
+surge-ping = "0.8"

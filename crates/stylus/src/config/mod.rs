@@ -13,6 +13,16 @@ use crate::interpolate::*;
 mod args;
 mod structs;
 
+#[cfg(windows)]
+#[derive(Debug)]
+pub enum ServiceOperation {
+    Install { config: Option<String> },
+    Uninstall,
+    Start,
+    Stop,
+    Run,
+}
+
 pub fn parse_config_from_args() -> Result<OperationMode, Box<dyn Error>> {
     let args = Args::parse();
 
@@ -87,6 +97,27 @@ pub fn parse_config_from_args() -> Result<OperationMode, Box<dyn Error>> {
             }
             debug!("{:?}", config);
             Ok(OperationMode::Run(config, run_args.dry_run))
+        }
+        #[cfg(windows)]
+        Commands::Service(service_args) => {
+            use self::args::{ServiceCommands, ServiceArgs};
+            match service_args.command {
+                ServiceCommands::Install { config } => {
+                    Ok(OperationMode::Service(ServiceOperation::Install { config }))
+                }
+                ServiceCommands::Uninstall => {
+                    Ok(OperationMode::Service(ServiceOperation::Uninstall))
+                }
+                ServiceCommands::Start => {
+                    Ok(OperationMode::Service(ServiceOperation::Start))
+                }
+                ServiceCommands::Stop => {
+                    Ok(OperationMode::Service(ServiceOperation::Stop))
+                }
+                ServiceCommands::Run => {
+                    Ok(OperationMode::Service(ServiceOperation::Run))
+                }
+            }
         }
     }
 }

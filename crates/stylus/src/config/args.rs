@@ -30,6 +30,10 @@ pub enum Commands {
 
     /// Run stylus (default command)
     Run(RunArgs),
+
+    #[cfg(windows)]
+    /// Windows Service management commands
+    Service(ServiceArgs),
 }
 
 #[derive(Debug, Parser)]
@@ -56,6 +60,11 @@ pub struct TestArgs {
     /// Advanced: if running a container, allows the container to override any path specified on the command line
     #[arg(env = "FORCE_CONTAINER_PATH", hide = true)]
     pub force_container_path: Option<PathBuf>,
+
+    /// Run as Windows Service (internal use)
+    #[cfg(windows)]
+    #[arg(long = "service", hide = true)]
+    pub service_mode: bool,
 }
 
 #[derive(Debug, Parser)]
@@ -67,6 +76,11 @@ pub struct InitArgs {
     /// Advanced: if running a container, allows the container to override any path specified on the command line
     #[arg(env = "FORCE_CONTAINER_PATH", hide = true)]
     pub force_container_path: Option<PathBuf>,
+
+    /// Run as Windows Service (internal use)
+    #[cfg(windows)]
+    #[arg(long = "service", hide = true)]
+    pub service_mode: bool,
 }
 
 #[derive(Debug, Parser)]
@@ -94,4 +108,39 @@ pub struct RunArgs {
     /// Advanced: if running a container, allows the container to override any path specified on the command line
     #[arg(env = "FORCE_CONTAINER_PATH", hide = true)]
     pub force_container_path: Option<PathBuf>,
+
+    /// Run as Windows Service (internal use)
+    #[cfg(windows)]
+    #[arg(long = "service", hide = true)]
+    pub service_mode: bool,
+}
+
+#[cfg(windows)]
+#[derive(Debug, Subcommand)]
+pub enum ServiceCommands {
+    /// Install Windows Service
+    Install {
+        /// Configuration file path (optional)
+        #[arg(short = 'c', long)]
+        config: Option<String>,
+    },
+
+    /// Uninstall Windows Service
+    Uninstall,
+
+    /// Start Windows Service
+    Start,
+
+    /// Stop Windows Service
+    Stop,
+
+    /// Run as Windows Service (internal)
+    Run,
+}
+
+#[cfg(windows)]
+#[derive(Debug, Parser)]
+pub struct ServiceArgs {
+    #[command(subcommand)]
+    pub command: ServiceCommands,
 }

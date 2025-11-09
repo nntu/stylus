@@ -1,0 +1,31 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cargo:*)",
+      "Bash(deno:*)",
+      "Bash(.\\target\\debug\\stylus.exe:*)",
+      "Bash(./target/debug/stylus.exe:*)",
+      "Bash(./target/release/stylus.exe:*)",
+      "Bash(node:*)",
+      "Bash(npm install)",
+      "Bash(curl.exe:*)",
+      "Bash(curl:*)",
+      "Bash(git add:*)",
+      "Bash(git rm:*)",
+      "Bash(git commit:*)",
+      "Bash(git checkout:*)",
+      "Bash(git push:*)",
+      "Bash(taskkill:*)",
+      "Bash(ping --help:*)",
+      "Bash(findstr:*)",
+      "Bash(netstat:*)",
+      "Bash(powershell:*)",
+      "Bash(chmod:*)",
+      "Bash(RUST_LOG=debug ./target/debug/stylus.exe test:*)",
+      "Bash(dir:*)",
+      "Bash(./stylus.exe:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

@@ -1,4 +1,6 @@
-test:
+ping:
+  host: 192.168.1.1
   interval: 10s
   timeout: 1s
-  command: test.sh
+  warning_timeout: 200ms
+  count: 1

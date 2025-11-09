@@ -9,11 +9,16 @@ use crate::monitor::MonitorMessageProcessor;
 use crate::monitors::ping::PingMonitorConfig;
 use crate::monitors::snmp::SnmpNetworkMonitorConfig;
 
+#[cfg(windows)]
+use crate::config::ServiceOperation;
+
 pub enum OperationMode {
     Run(Config, bool),
     Dump(Config),
     Init(PathBuf, bool),
     Test(Config, String),
+    #[cfg(windows)]
+    Service(ServiceOperation),
 }
 
 fn default_server_port() -> u16 {

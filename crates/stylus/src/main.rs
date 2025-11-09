@@ -15,6 +15,9 @@ mod monitors;
 mod status;
 mod worker;
 
+#[cfg(windows)]
+mod windows;
+
 #[macro_use]
 extern crate log;
 #[macro_use]
@@ -23,6 +26,9 @@ extern crate derive_more;
 use crate::config::{
     parse_config_from_args, parse_monitor_configs, Config, MonitorDirConfig, OperationMode,
 };
+
+#[cfg(windows)]
+use crate::config::ServiceOperation;
 use crate::status::MonitorState;
 use crate::worker::monitor_run;
 
@@ -129,6 +135,56 @@ async fn run() {
                 println!("Re-run the container with no arguments to start the server");
             } else {
                 println!("Run `stylus run {path:?}` to start the server");
+            }
+        }
+        #[cfg(windows)]
+        OperationMode::Service(service_op) => {
+            use crate::windows::{installer, service};
+
+            match service_op {
+                ServiceOperation::Install { config } => {
+                    match installer::install_service(".", config.as_deref()) {
+                        Ok(()) => println!("Service installed successfully"),
+                        Err(e) => {
+                            eprintln!("Failed to install service: {}", e);
+                            std::process::exit(1);
+                        }
+                    }
+                }
+                ServiceOperation::Uninstall => {
+                    match installer::uninstall_service() {
+                        Ok(()) => println!("Service uninstalled successfully"),
+                        Err(e) => {
+                            eprintln!("Failed to uninstall service: {}", e);
+                            std::process::exit(1);
+                        }
+                    }
+                }
+                ServiceOperation::Start => {
+                    match installer::start_service() {
+                        Ok(()) => println!("Service started successfully"),
+                        Err(e) => {
+                            eprintln!("Failed to start service: {}", e);
+                            std::process::exit(1);
+                        }
+                    }
+                }
+                ServiceOperation::Stop => {
+                    match installer::stop_service() {
+                        Ok(()) => println!("Service stopped successfully"),
+                        Err(e) => {
+                            eprintln!("Failed to stop service: {}", e);
+                            std::process::exit(1);
+                        }
+                    }
+                }
+                ServiceOperation::Run => {
+                    // Run as Windows Service
+                    if let Err(e) = service::run_service() {
+                        eprintln!("Failed to run service: {}", e);
+                        std::process::exit(1);
+                    }
+                }
             }
         }
     }
