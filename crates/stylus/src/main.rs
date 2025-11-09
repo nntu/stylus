@@ -153,7 +153,8 @@ fn write_template_recursive(root_path: &Path, dir: &Dir) {
             .expect(&format!("Unable to write file {file:?}"));
 
         if file.mimetype() == "application/x-shellscript" {
-            if cfg!(unix) {
+            #[cfg(unix)]
+            {
                 use std::os::unix::fs::PermissionsExt;
                 std::fs::set_permissions(file_path, std::fs::Permissions::from_mode(0o755))
                     .expect("Unable to set permissions on test.sh");

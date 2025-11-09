@@ -29,11 +29,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         let out_dir = std::env::var_os("OUT_DIR").unwrap().into_string().unwrap();
 
-        try_run!("deno install --config web/deno.json")?;
+        try_run!("deno install --config ./web/deno.json")?;
         try_run!(
-            r#"deno bundle --config web/deno.json --minify --platform browser \
-            --output {out_dir}/stylus.js --sourcemap=external web/src/app.tsx"#
+            r#"deno bundle --config ./web/deno.json --minify --platform browser \
+            --output {out_dir}/stylus.js --sourcemap=external ./web/src/app.tsx"#
         )?;
+        // Compress JS map file - skip on Windows if gzip not available
+        #[cfg(unix)]
         try_run!("gzip -9 --force {out_dir}/stylus.js.map")?;
 
         // Inline CSS imports manually
